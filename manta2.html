@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manta2</title>
+    <style>
+      body {
+        background: #aaa;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas height="600" width="800"></canvas>
+
+    <script>
+      const canvas = document.querySelector("canvas");
+      const ctx = canvas.getContext("2d");
+
+      const scale = 1;
+
+      const rectPoints = [
+        { x: 0, y: 0 },
+        { x: 173, y: 0 },
+        { x: 173, y: 100 },
+        { x: 0, y: 100 },
+      ];
+
+      const mantaPoints = [
+        { x: 173 / 2 - 18, y: 18 },
+
+        { x: 173 / 2 - 18, y: 12 },
+        { x: 173 / 2 - 12, y: 12 },
+
+        { x: 173 / 2 - 12, y: 20 },
+        { x: 173 / 2 + 12, y: 20 },
+
+        { x: 173 / 2 + 12, y: 12 },
+        { x: 173 / 2 + 18, y: 12 },
+
+        { x: 173 / 2 + 18, y: 18 },
+
+        { x: 173, y: 50 },
+        { x: 173 / 2, y: 100 + 100 },
+        { x: 0, y: 50 },
+      ];
+
+      const reflect = (pts) => {
+        return pts.map((pt) => ({ x: 200 - pt.x, y: pt.y }));
+      };
+
+      const translate = (pts, shift) => {
+        return pts.map((pt) => ({ x: pt.x + shift.x, y: pt.y + shift.y }));
+      };
+
+      const drawPolygon = (pts, color, angle = 0, cx = 0, cy = 0) => {
+        // Temporary scaling for dev
+        // pts = pts.map((pt) => ({
+        //   x: pt.x * scale * 0.5,
+        //   y: pt.y * scale,
+        // }));
+
+        // console.log("draw poly", angle);
+
+        // Wow, just guessed this, sweet. Otherwise the angles seem to stack on each other.
+        ctx.resetTransform();
+
+        if (angle > 0) {
+          ctx.translate(cx || canvas.width / 2, cy || canvas.height / 2);
+          ctx.rotate((angle * Math.PI) / 180);
+
+          ctx.translate(-cx || -canvas.width / 2, -cy || -canvas.height / 2);
+        }
+
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, pts[0].y);
+        for (let i = 1; i < pts.length; i++) {
+          ctx.lineTo(pts[i].x, pts[i].y);
+        }
+        ctx.closePath();
+        ctx.fill();
+        // if (angle > 0) {
+        // }
+      };
+
+      // Draw them "backwards" so they overlap correctly
+
+      const numRows = 10 / scale;
+      const numCols = 20 / scale;
+
+      //   for (let j = 0; j < numRows; j++) {
+      //     // const start = j % 2 === 0 ? 10 : 0;
+      //     // const end = j % 2 === 0 ? 0 : 10;
+      //     const dir = j % 2 === 0 ? -1 : 1;
+      //     let i = j % 2 === 0 ? numCols - 1 : 0;
+      //     while (i < numCols && i >= 0) {
+      //       const pts = j % 2 === 0 ? mantaPoints : reflect(mantaPoints);
+      //       //   let colors = ["#ccc", "#333"];
+      //       let colors = ["#8ecae6", "#ffb703"];
+      //       if (j % 2 === 0) {
+      //         // colors = ["#666", "#fff"];
+      //         colors = ["#219ebc", "#023047"];
+      //         // #fb8500, ffb703
+      //       }
+      //       drawPolygon(
+      //         translate(pts, { x: -100 + i * 100, y: -50 + j * 60 }),
+      //         colors[i % 2]
+      //       );
+
+      //       i += dir;
+      //     }
+      //   }
+
+      const drawMants = (start) => {
+        const startPt = start;
+        const rightPt = { x: start.x + 173 / 2 - 43.5, y: start.y + 100 - 25 };
+        const leftPt = { x: start.x - 173 / 2 + 43.5, y: start.y + 100 - 25 };
+
+        const colors = ["blue", "lightblue", "teal"];
+        const angles = [0, 360 - 60, 60];
+
+        [startPt, rightPt, leftPt].forEach((pt, i) => {
+          // drawPolygon(translate(rectPoints, pt), "green");
+          drawPolygon(
+            translate(mantaPoints, pt),
+            colors[i],
+            angles[i],
+            pt.x + 173 / 2,
+            pt.y + 100 / 2
+          );
+        });
+      };
+
+      drawMants({ x: 400, y: 50 });
+      drawMants({ x: 400 + 173 / 2, y: 50 + 150 });
+      drawMants({ x: 400 - 173 / 2, y: 50 + 150 });
+    </script>
+  </body>
+</html>
