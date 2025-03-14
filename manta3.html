@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mantas</title>
+    <style>
+      body {
+        background: #aaa;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas height="800" width="1000"></canvas>
+
+    <script>
+      const canvas = document.querySelector("canvas");
+      const ctx = canvas.getContext("2d");
+
+      const scale = 1;
+
+      const rectPoints = [
+        { x: 0, y: 0 },
+        { x: 100, y: 0 },
+        { x: 100, y: 100 },
+        { x: 0, y: 100 },
+      ];
+
+      const mantaPoints = [
+        { x: 0, y: 50 },
+        { x: 33, y: 0 },
+        { x: 66, y: 0 },
+        { x: 100, y: 48 },
+        { x: 150, y: 48 },
+        { x: 150, y: 52 },
+        { x: 100, y: 52 },
+
+        { x: 66, y: 100 },
+        { x: 33, y: 100 },
+
+        // //
+        // { x: 0, y: 40 },
+        // { x: 5, y: 45 },
+        // { x: 5, y: 55 },
+        // { x: 0, y: 60 },
+        // { x: 12, y: 60 },
+        // { x: 100 - 12, y: 100 },
+        // { x: 100, y: 100 },
+        // { x: 100, y: 60 },
+        // { x: 105, y: 55 },
+        // // Tail triangle
+        // { x: 105, y: 53 },
+        // { x: 200, y: 50 },
+        // { x: 105, y: 47 },
+        // // Heading back
+        // { x: 105, y: 45 },
+        // { x: 100, y: 40 },
+        // { x: 100, y: 0 },
+        // { x: 100 - 12, y: 0 },
+        // { x: 12, y: 40 },
+
+        // //
+        // { x: 0, y: 100 },
+        // { x: 100, y: 100 },
+        // { x: 100, y: 0 },
+        // { x: 0, y: 0 },
+      ];
+
+      const reflect = (pts) => {
+        return pts.map((pt) => ({ x: 200 - pt.x, y: pt.y }));
+      };
+
+      const translate = (pts, shift) => {
+        return pts.map((pt) => ({ x: pt.x + shift.x, y: pt.y + shift.y }));
+      };
+
+      const drawPolygon = (pts, color) => {
+        // Temporary scaling for dev
+        pts = pts.map((pt) => ({
+          x: pt.x * scale * 0.5,
+          y: pt.y * scale,
+        }));
+
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, pts[0].y);
+        for (let i = 1; i < pts.length; i++) {
+          ctx.lineTo(pts[i].x, pts[i].y);
+        }
+        ctx.closePath();
+        ctx.fill();
+      };
+
+      // Draw them "backwards" so they overlap correctly
+
+      const numRows = 10 / scale;
+      const numCols = 20 / scale;
+
+      for (let j = 0; j < numRows; j++) {
+        // const start = j % 2 === 0 ? 10 : 0;
+        // const end = j % 2 === 0 ? 0 : 10;
+        const dir = j % 2 === 0 ? -1 : 1;
+        let i = j % 2 === 0 ? numCols - 1 : 0;
+        while (i < numCols && i >= 0) {
+          const pts = j % 2 === 0 ? mantaPoints : reflect(mantaPoints);
+          //   const pts = mantaPoints;
+          //   let colors = ["#ccc", "#333"];
+          let colors = ["#8ecae6", "#ffb703"];
+          if (j % 2 === 0) {
+            // colors = ["#666", "#fff"];
+            colors = ["#219ebc", "#023047"];
+            // #fb8500, ffb703
+          }
+          drawPolygon(
+            translate(pts, {
+              x: -100 + i * 134 + (j % 2 === 0 ? 32 : 0),
+              y: -50 + j * 52,
+            }),
+            colors[i % 2]
+          );
+
+          i += dir;
+        }
+      }
+
+      //   drawPolygon(rectPoints, "green");
+      //   drawPolygon(mantaPoints, "blue");
+    </script>
+  </body>
+</html>
