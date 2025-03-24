@@ -13,4 +13,4 @@ I really wanted this one to work... but alas.
 
 Starting to get into some rotational symmetries...this one is based on our dog, who is not a manta ray.
 
-![Bubu](bubu.png)
+![Bubu](screenshots/bubu.png)

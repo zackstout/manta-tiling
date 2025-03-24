@@ -37,26 +37,33 @@
         //   y: pt.y * scale,
         // }));
 
-        ctx.fillStyle = color;
         ctx.beginPath();
         ctx.moveTo(pts[0].x, pts[0].y);
         for (let i = 1; i < pts.length; i++) {
           ctx.lineTo(pts[i].x, pts[i].y);
         }
         ctx.closePath();
+
+        // ctx.clip();
+
+        ctx.fillStyle = color;
         ctx.fill();
+        // ctx.fillRect(0, 0, 500, 500);
       };
 
       const rotatePoints = (pts, ctr, angle) => {
         return pts
           .map((pt) => {
             const v = { x: pt.x - ctr.x, y: pt.y - ctr.y };
+
+            // Apply rotation matrix
             return {
               x: v.x * Math.cos(angle) - v.y * Math.sin(angle),
               y: v.x * Math.sin(angle) + v.y * Math.cos(angle),
             };
           })
           .map((pt) => {
+            // don't forget to translate back out..
             return {
               x: pt.x + ctr.x,
               y: pt.y + ctr.y,
@@ -64,7 +71,10 @@
           });
       };
 
-      const radius = 80;
+      const radius = 30;
+      const NUM_CELLS = 30;
+
+      const BUBU_COLORS = ["#b86d29", "#DEB887", "#222"];
 
       const makeBubu = () => {
         const vertices = [];
@@ -98,6 +108,9 @@
           { x: v4.x + radius * 0.0, y: v4.y - radius * 0.6 },
           { x: v5.x + radius * 0.05, y: v5.y + radius * 0.1 },
         ];
+
+        // To get just plain hexes:
+        // return vertices;
 
         const points = [
           v0,
@@ -134,21 +147,24 @@
 
         // Heinous
 
-        const rotationLookup = {
-          //   "0,-1": 1,
-          //   "1,0": 1,
-          "0,-2": 1,
-          "0,-1": 2,
-          "0,1": 1,
-          "0,2": 2,
-          "-1,-1": 2,
-          "-1,1": 1,
-        };
+        // const rotationLookup = {
+        //   //   "0,-1": 1,
+        //   //   "1,0": 1,
+        //   "0,-2": 1,
+        //   "0,-1": 2,
+        //   "0,1": 1,
+        //   "0,2": 2,
+        //   "-1,-1": 2,
+        //   "-1,1": 1,
+        // };
 
         // middle row is 0, row above is 2, row above that is 1, etc.
 
-        for (let i = -5; i < 5; i++) {
-          for (let j = -5; j < 5; j++) {
+        // Make a grid of tiles:
+        const halfCells = NUM_CELLS / 2;
+
+        for (let i = -halfCells; i < halfCells; i++) {
+          for (let j = -halfCells; j < halfCells; j++) {
             // Wtf is this 1.25 instead of 1??? Lol it's just 1.5 wow
             // const offset =
             //   j % 2 === 0 ? 0 : (radius * (Math.sqrt(3) + 1.25)) / 2;
@@ -164,7 +180,7 @@
             const shifted = translate(points, shift);
             // const numRots = rotationLookup[`${i},${j}`] ?? 0;
 
-            const rowVal = j + 5;
+            const rowVal = j + halfCells;
             const numRots = rowVal % 3;
 
             const rotated = rotatePoints(
@@ -172,9 +188,12 @@
               newCtr,
               (2 * Math.PI * numRots) / 3
             );
-            const col = `hsl(200, ${((i + 5) * 100) / 10}%, ${
-              ((j + 5) * 100) / 10
+            let col = `hsl(200, ${((i + halfCells) * 100) / 10}%, ${
+              ((j + halfCells) * 100) / 10
             }%)`;
+
+            col = BUBU_COLORS[numRots];
+
             drawPolygon(rotated, col);
           }
         }
